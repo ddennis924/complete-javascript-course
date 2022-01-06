@@ -1,12 +1,8 @@
 'use strict';
 
-/////////////////////////////////////////////////
-/////////////////////////////////////////////////
-// BANKIST APP
-
 // Data
 const account1 = {
-  owner: 'Jonas Schmedtmann',
+  owner: 'Dennis Li',
   movements: [200, 450, -400, 3000, -650, -130, 70, 1300],
   interestRate: 1.2, // %
   pin: 1111,
@@ -34,6 +30,10 @@ const account4 = {
 };
 
 const accounts = [account1, account2, account3, account4];
+accounts.forEach(function (user) {
+  user.username = username(user.owner);
+});
+let currentAccount = accounts[0];
 
 // Elements
 const labelWelcome = document.querySelector('.welcome');
@@ -61,16 +61,60 @@ const inputLoanAmount = document.querySelector('.form__input--loan-amount');
 const inputCloseUsername = document.querySelector('.form__input--user');
 const inputClosePin = document.querySelector('.form__input--pin');
 
-/////////////////////////////////////////////////
-/////////////////////////////////////////////////
-// LECTURES
+function displayMovements(movements) {
+  containerMovements.innerHTML = ``;
+  movements.forEach(function (value, i) {
+    const type = value > 0 ? `deposit` : `withdrawal`;
+    const html = `<div class="movements__row">
+    <div class="movements__type movements__type--${type}">${i + 1} ${type}</div>
+    <div class="movements__date">3 days ago</div>
+    <div class="movements__value">$${value}</div>
+  </div>`;
+    containerMovements.insertAdjacentHTML(`afterbegin`, html);
+  });
+}
+displayMovements(account1.movements);
 
-const currencies = new Map([
-  ['USD', 'United States dollar'],
-  ['EUR', 'Euro'],
-  ['GBP', 'Pound sterling'],
-]);
+function toDollar(string) {
+  return `$${string}`;
+}
 
-const movements = [200, 450, -400, 3000, -650, -130, 70, 1300];
+function username(string) {
+  const names = string.toLowerCase().split(` `);
+  console.log(names);
+  return names
+    .map(function (name) {
+      return name.substring(0, 1);
+    })
+    .join(``);
+}
 
-/////////////////////////////////////////////////
+function balance(movements) {
+  labelBalance.textContent = `$${movements.reduce(function (balance, val) {
+    return balance + val;
+  }, 0)}`;
+}
+
+function updateNumbers(movements) {
+  (function () {
+    labelSumIn.textContent = toDollar(
+      movements.filter(mov => mov > 0).reduce((acc, mov) => acc + mov)
+    );
+  })();
+  (function () {
+    labelSumOut.textContent = toDollar(
+      Math.abs(movements.filter(mov => mov < 0).reduce((acc, mov) => acc + mov))
+    );
+  })();
+  (function () {
+    labelSumInterest.textContent = toDollar(
+      movements
+        .filter(mov => mov > 0)
+        .map(mov => (mov * currentAccount.interestRate) / 100)
+        .filter(mov => mov >= 1)
+        .reduce((acc, mov) => acc + mov)
+    );
+  })();
+}
+updateNumbers(account1.movements);
+balance(currentAccount.movements);

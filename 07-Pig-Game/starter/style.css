@@ -165,3 +165,12 @@ main {
   font-weight: 700;
   color: #c7365f;
 }
+
+.overlay {
+  width: 100rem;
+  box-shadow: 0 2rem 5rem rgba(0, 0, 0, 0.2);
+}
+
+.hidden {
+  display: none;
+}
